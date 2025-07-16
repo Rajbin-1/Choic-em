@@ -1,40 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Choic’em — Your Daily Decision Assistant</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; background: #fdfdfd; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
-  nav { background: #2e7d32; color: #fff; display: flex; justify-content: center; gap: 30px; padding: 12px; font-weight: 600; }
-  nav button { background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem; padding: 6px 12px; border-radius: 4px; transition: .3s; }
-  nav button.active, nav button:hover { background: #4caf50; }
-  .corner-btn { position: absolute; top: 10px; background: #60ad5e; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 0.9rem; transition: .3s; }
-  .corner-btn:hover { background: #4a8c43; }
-  .weather-btn { left: 10px; }
-  .entertainment-btn { right: 10px; }
-  header, main { padding: 40px 20px; flex-grow: 1; display: none; animation: fadeIn .5s ease; position: relative; }
-  header.active, main.active { display: block; }
-  h1 { text-align: center; font-size: 3rem; color: #2e7d32; margin-bottom: 10px; }
-  h2 { text-align: center; font-size: 1.3rem; color: #555; margin-bottom: 20px; }
-  .description { max-width: 1000px; margin: 0 auto 30px; text-align: justify; line-height: 1.8; font-size: 1.1rem; }
-  .info-cards { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin: 30px auto; max-width: 1200px; }
-  .card { flex: 1 1 300px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; line-height: 1.5; }
-  .get-started { display: block; margin: 40px auto; padding: 12px 25px; background: #2e7d32; color: #fff; font-size: 1.2rem; border: none; border-radius: 6px; cursor: pointer; transition: .3s; }
-  .get-started:hover { background: #4caf50; }
-  .circle-section { position: relative; width: 600px; height: 600px; margin: 0 auto; }
-  .center-circle { position: absolute; top: 50%; left: 50%; width: 180px; height: 180px; background: #fff; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; transform: translate(-50%,-50%); font-weight: 700; color: #2e7d32; text-align: center; }
-  .tool { position: absolute; width: 110px; height: 110px; background: #60ad5e; color: #fff; font-size: .95rem; font-weight: 600; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px; cursor: pointer; transition: .3s; }
-  .tool:hover { transform: scale(1.1); background: #4a8c43; }
-  .footer { text-align: center; padding: 15px; background: #eee; font-size: .9rem; color: #666; }
-  @media(max-width: 800px) {
-    .circle-section { width: 100%; height: 400px; }
-    .center-circle { width: 120px; height: 120px; }
-    .tool { width: 70px; height: 70px; font-size: .75rem; }
-  }
-  @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -50,16 +20,18 @@
   <h1>Choic’em</h1>
   <h2>Your Daily Decision Assistant</h2>
   <p class="description">
-    Making decisions is exhausting. From choosing what to eat, what to watch, or what to do when you’re bored, the endless options drain your energy. 
-    That’s where Choic’em comes in — a smart, interactive, and professional decision-assistance tool that puts clarity back into your everyday life. 
-    Whether you need help finding the perfect gift, breaking the ice in conversations, or simply deciding on tonight’s dinner, Choic’em guides you with fast, fun, and personalized suggestions. 
+    Making decisions is exhausting. From choosing what to eat, what to watch, or what to do when you’re bored, the endless options drain your energy.  
+    That’s where Choic’em comes in — a smart, interactive, and professional decision-assistance tool that puts clarity back into your everyday life.  
+    Whether you need help finding the perfect gift, breaking the ice in conversations, or simply deciding on tonight’s dinner, Choic’em guides you with fast, fun, and personalized suggestions.  
     With weather and entertainment insights integrated right where you need them, Choic’em is more than a tool — it’s your trusted daily assistant.
   </p>
+
   <div class="info-cards">
     <div class="card">🎯 Why Choic’em? <br> Stop wasting time second-guessing yourself.</div>
     <div class="card">💡 Smart Tools <br> Tailored recommendations based on your needs.</div>
     <div class="card">🌟 All-in-One <br> Gift ideas, weather planning, fun icebreakers, and more.</div>
   </div>
+
   <button class="get-started" onclick="showTools()">Get Started</button>
 </header>
 
@@ -107,6 +79,53 @@
 
   if(localStorage.getItem('started')==='true') showTools();
   else showHome();
+</script>
+
+<!-- Add this near the bottom of your body -->
+<div id="chatbot" style="position:fixed; bottom:20px; right:20px; width:300px; max-height:400px; background:#fff; border:1px solid #ccc; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
+  <div id="chatbot-messages" style="flex-grow:1; padding:10px; overflow-y:auto; font-size:0.9rem; color:#222;"></div>
+  <input id="chatbot-input" type="text" placeholder="Ask me anything..." style="border:none; border-top:1px solid #ccc; padding:10px; font-size:1rem; border-radius:0 0 10px 10px; outline:none;">
+</div>
+
+<script>
+  const messagesDiv = document.getElementById('chatbot-messages');
+  const input = document.getElementById('chatbot-input');
+
+  function addMessage(text, fromUser) {
+    const msg = document.createElement('div');
+    msg.textContent = text;
+    msg.style.margin = '5px 0';
+    msg.style.padding = '8px';
+    msg.style.borderRadius = '8px';
+    if(fromUser) {
+      msg.style.background = '#4caf50';
+      msg.style.color = 'white';
+      msg.style.alignSelf = 'flex-end';
+    } else {
+      msg.style.background = '#e0e0e0';
+      msg.style.color = '#222';
+      msg.style.alignSelf = 'flex-start';
+    }
+    messagesDiv.appendChild(msg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  input.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter' && input.value.trim()) {
+      const userText = input.value.trim();
+      addMessage(userText, true);
+      input.value = '';
+      
+      // Simple predefined responses for demo
+      setTimeout(() => {
+        let botReply = "Sorry, I don't understand yet.";
+        if(userText.toLowerCase().includes('gift')) botReply = "I can help you find the perfect gift! Tell me who it's for.";
+        else if(userText.toLowerCase().includes('weather')) botReply = "Tell me your city, and I'll check the weather for you.";
+        else if(userText.toLowerCase().includes('eat')) botReply = "Looking for food ideas? What are you in the mood for?";
+        addMessage(botReply, false);
+      }, 800);
+    }
+  });
 </script>
 
 </body>
