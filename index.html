@@ -81,52 +81,5 @@
   else showHome();
 </script>
 
-<!-- Add this near the bottom of your body -->
-<div id="chatbot" style="position:fixed; bottom:20px; right:20px; width:300px; max-height:400px; background:#fff; border:1px solid #ccc; border-radius:10px; box-shadow:0 0 15px rgba(0,0,0,0.2); display:flex; flex-direction:column;">
-  <div id="chatbot-messages" style="flex-grow:1; padding:10px; overflow-y:auto; font-size:0.9rem; color:#222;"></div>
-  <input id="chatbot-input" type="text" placeholder="Ask me anything..." style="border:none; border-top:1px solid #ccc; padding:10px; font-size:1rem; border-radius:0 0 10px 10px; outline:none;">
-</div>
-
-<script>
-  const messagesDiv = document.getElementById('chatbot-messages');
-  const input = document.getElementById('chatbot-input');
-
-  function addMessage(text, fromUser) {
-    const msg = document.createElement('div');
-    msg.textContent = text;
-    msg.style.margin = '5px 0';
-    msg.style.padding = '8px';
-    msg.style.borderRadius = '8px';
-    if(fromUser) {
-      msg.style.background = '#4caf50';
-      msg.style.color = 'white';
-      msg.style.alignSelf = 'flex-end';
-    } else {
-      msg.style.background = '#e0e0e0';
-      msg.style.color = '#222';
-      msg.style.alignSelf = 'flex-start';
-    }
-    messagesDiv.appendChild(msg);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  input.addEventListener('keypress', function(e) {
-    if(e.key === 'Enter' && input.value.trim()) {
-      const userText = input.value.trim();
-      addMessage(userText, true);
-      input.value = '';
-      
-      // Simple predefined responses for demo
-      setTimeout(() => {
-        let botReply = "Sorry, I don't understand yet.";
-        if(userText.toLowerCase().includes('gift')) botReply = "I can help you find the perfect gift! Tell me who it's for.";
-        else if(userText.toLowerCase().includes('weather')) botReply = "Tell me your city, and I'll check the weather for you.";
-        else if(userText.toLowerCase().includes('eat')) botReply = "Looking for food ideas? What are you in the mood for?";
-        addMessage(botReply, false);
-      }, 800);
-    }
-  });
-</script>
-
 </body>
 </html>
