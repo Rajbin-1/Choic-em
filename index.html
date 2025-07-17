@@ -179,6 +179,15 @@ h2 {
   line-height: 1.8;
   color: #444;
 }
+#objective-section {
+  padding: 40px 20px;
+  flex-grow: 1;
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+#objective-section.active {
+  display: block;
+}
 .video-placeholder {
   margin: 20px auto;
   width: 100%;
@@ -199,6 +208,7 @@ h2 {
 <nav>
   <button id="nav-home" class="active">Home</button>
   <button id="nav-tools">Tools</button>
+  <button id="nav-objective">Objective</button>
 </nav>
 
 <header id="home-section" class="active">
@@ -215,21 +225,7 @@ h2 {
   </div>
   <button class="get-started" onclick="showTools()">Get Started</button>
 
-  <section class="objective-section">
-    <h2>Our Objective</h2>
-    <div class="objective-content">
-      <p>
-        Every day, people waste hours stuck in decision paralysis over simple questions like:
-        “What should I eat?” or “Which movie to watch?” This drains our energy and time.
-      </p>
-      <p>
-        Our mission is to eliminate this cognitive load by providing fast, personalized, and helpful suggestions through Choic’em. Less stress. Better decisions. More time.
-      </p>
-      <div class="video-placeholder">
-        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Placeholder Video"></iframe>
-      </div>
-    </div>
-  </section>
+  
 </header>
 
 <main id="tools-section">
@@ -244,40 +240,34 @@ h2 {
     <div class="tool" style="top:50%; left:0; transform:translateY(-50%);">🎧📚<br>Entertainment</div>
     <div class="tool" style="top:50%; right:0; transform:translateY(-50%);">💬<br>Icebreaker</div>
   </section>
+<section id="objective-section">
+  <h2 style="text-align:center; margin-bottom: 30px; color:#4a148c;">Our Objective</h2>
+  <div class="objective-content">
+    <p>
+      Every day, people waste hours stuck in decision paralysis over simple questions like:
+      “What should I eat?” or “Which movie to watch?” This drains our energy and time.
+    </p>
+    <p>
+      Our mission is to eliminate this cognitive load by providing fast, personalized, and helpful suggestions through Choic’em. Less stress. Better decisions. More time.
+    </p>
+    <div class="video-placeholder">
+      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Placeholder Video"></iframe>
+    </div>
+  </div>
+</section>
 </main>
 
 <div class="footer">
   © 2025 Choic’em. All rights reserved.
 </div>
 
-<script>
-const navHome = document.getElementById('nav-home');
-const navTools = document.getElementById('nav-tools');
-const homeSection = document.getElementById('home-section');
-const toolsSection = document.getElementById('tools-section');
-
-function showHome() {
-  homeSection.classList.add('active');
-  toolsSection.classList.remove('active');
-  navHome.classList.add('active');
-  navTools.classList.remove('active');
-  localStorage.removeItem('started');
+if (localStorage.getItem('started') === 'true') {
+  showTools();
+} else if (localStorage.getItem('started') === 'objective') {
+  showObjective();
+} else {
+  showHome();
 }
-
-function showTools() {
-  homeSection.classList.remove('active');
-  toolsSection.classList.add('active');
-  navHome.classList.remove('active');
-  navTools.classList.add('active');
-  localStorage.setItem('started', 'true');
-}
-
-navHome.onclick = showHome;
-navTools.onclick = showTools;
-
-if(localStorage.getItem('started')==='true') showTools();
-else showHome();
-</script>
 
 </body>
 </html>
