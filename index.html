@@ -13,14 +13,14 @@
   }
   body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(to bottom right, #f1f8f4, #ffffff);
+    background: linear-gradient(to bottom right, #f5f7fa, #e4ecf7);
     color: #333;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
   nav {
-    background: #2e7d32;
+    background: #4a148c;
     color: #fff;
     display: flex;
     justify-content: center;
@@ -30,7 +30,6 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    transition: background 0.3s;
   }
   nav button {
     background: none;
@@ -44,21 +43,21 @@
   }
   nav button.active,
   nav button:hover {
-    background: #4caf50;
+    background: #7b1fa2;
   }
-  header, main {
+  header, main, section {
     padding: 40px 20px;
     flex-grow: 1;
     display: none;
     animation: fadeIn 0.5s ease;
   }
-  header.active, main.active {
+  header.active, main.active, section.active {
     display: block;
   }
   h1 {
     text-align: center;
     font-size: 3rem;
-    color: #2e7d32;
+    color: #4a148c;
     margin-bottom: 10px;
   }
   h2 {
@@ -100,7 +99,7 @@
     display: block;
     margin: 40px auto;
     padding: 12px 25px;
-    background: #2e7d32;
+    background: #4a148c;
     color: #fff;
     font-size: 1.2rem;
     border: none;
@@ -109,21 +108,22 @@
     transition: 0.3s;
   }
   .get-started:hover {
-    background: #4caf50;
+    background: #7b1fa2;
   }
+
   .circle-section {
     position: relative;
     width: 100%;
     max-width: 600px;
-    height: 600px;
+    height: 700px;
     margin: 0 auto;
   }
   .center-circle {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 160px;
-    height: 160px;
+    width: 200px;
+    height: 200px;
     background: #fff;
     border-radius: 50%;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -132,17 +132,17 @@
     justify-content: center;
     transform: translate(-50%, -50%);
     font-weight: 700;
-    color: #2e7d32;
+    color: #4a148c;
     text-align: center;
     user-select: none;
   }
   .tool {
     position: absolute;
-    width: 100px;
-    height: 100px;
-    background: #60ad5e;
+    width: 130px;
+    height: 130px;
+    background: #7b1fa2;
     color: #fff;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 600;
     border-radius: 50%;
     display: flex;
@@ -155,7 +155,7 @@
   }
   .tool:hover {
     transform: scale(1.1);
-    background: #4a8c43;
+    background: #9c27b0;
   }
   .footer {
     text-align: center;
@@ -165,23 +165,36 @@
     color: #666;
     user-select: none;
   }
-  @media (max-width: 600px) {
-    .circle-section {
-      height: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .center-circle {
-      position: static;
-      transform: none;
-      margin: 0 auto;
-    }
-    .tool {
-      position: static;
-      margin: 0 auto;
-    }
+  .objective-section {
+    background: #fff;
+    padding: 40px 20px;
+    margin-top: 40px;
   }
+  .objective-section h2 {
+    color: #4a148c;
+    margin-bottom: 15px;
+  }
+  .objective-content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+  .video-placeholder {
+    margin: 20px auto;
+    width: 100%;
+    max-width: 600px;
+    height: 340px;
+    background: #ddd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 1.2rem;
+  }
+
   @keyframes fadeIn {
     from {opacity: 0;}
     to {opacity: 1;}
@@ -224,6 +237,23 @@
     <div class="tool" style="top:50%; right:0; transform:translateY(-50%);">💬<br>Icebreaker</div>
   </section>
 </main>
+
+<section class="objective-section">
+  <h2>Our Objective</h2>
+  <div class="objective-content">
+    <p>Every day, millions of people waste hours agonizing over simple, everyday questions:  
+      <em>“What should I eat tonight?”</em>  
+      <em>“What’s the best show to watch?”</em>  
+      <em>“What gift will make them smile?”</em>  
+      These decisions seem small but add up, leading to stress and wasted time.</p>
+
+    <p>At Choic’em, our mission is to eliminate decision fatigue. We empower you with quick, smart, and personalized suggestions — so you can spend your energy where it really matters.</p>
+
+    <div class="video-placeholder">
+      🎥 Your Video Here
+    </div>
+  </div>
+</section>
 
 <div class="footer">
   © 2025 Choic’em. All rights reserved.
