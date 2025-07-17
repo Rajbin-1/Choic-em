@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Choic’em — Your Daily Decision Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* your CSS here - keep it the same as before */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -119,17 +120,43 @@ h2 {
   margin: 0 auto;
 }
 .center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 220px;
   height: 220px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #4a148c;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  text-align: center;
+  padding: 10px;
 }
 .tool {
+  position: absolute;
   width: 150px;
   height: 150px;
+  background: #7b1fa2;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  padding: 10px;
+  font-weight: 600;
+  transition: transform 0.3s ease, background 0.3s ease;
 }
-
 .tool:hover {
-  transform: scale(1.1);
   background: #9c27b0;
+  transform: scale(1.1);
 }
 .footer {
   text-align: center;
@@ -173,9 +200,6 @@ h2 {
   from {opacity: 0;}
   to {opacity: 1;}
 }
-@keyframes fadeInTool {
-  to {opacity: 1;}
-}
 @media (max-width: 600px) {
   .tool {
     width: 90px;
@@ -210,26 +234,25 @@ h2 {
     <div class="card">🌟 All-in-One <br> Gift ideas, weather planning, fun icebreakers, and more.</div>
   </div>
   <button class="get-started" onclick="showTools()">Get Started</button>
-
-  <!-- Moved Objective section inside Home -->
-  <header id="objective-section" class ="active">
-    <h2>Our Objective</h2>
-    <div class="objective-content">
-      <p>
-        Every day, people waste hours stuck in decision paralysis over simple questions like:
-        “What should I eat?” or “Which movie to watch?” This drains our energy and time.
-      </p>
-      <p>
-        Our mission is to eliminate this cognitive load by providing fast, personalized, and helpful suggestions through Choic’em. Less stress. Better decisions. More time.
-      </p>
-      <div class="video-placeholder">
-        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Placeholder Video"></iframe>
-      </div>
-    </div>
-  </section>
 </header>
 
-<main id="tools-section" class = "active">
+<section id="objective-section" class="objective-section active">
+  <h2>Our Objective</h2>
+  <div class="objective-content">
+    <p>
+      Every day, people waste hours stuck in decision paralysis over simple questions like:
+      “What should I eat?” or “Which movie to watch?” This drains our energy and time.
+    </p>
+    <p>
+      Our mission is to eliminate this cognitive load by providing fast, personalized, and helpful suggestions through Choic’em. Less stress. Better decisions. More time.
+    </p>
+    <div class="video-placeholder">
+      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Placeholder Video"></iframe>
+    </div>
+  </div>
+</section>
+
+<main id="tools-section" class="active">
   <h2 style="text-align:center; margin-bottom: 30px; color:#4a148c;">Choose a Tool</h2>
   <section class="circle-section">
     <div class="center-circle">Why Not Do It?</div>
@@ -252,10 +275,12 @@ const navHome = document.getElementById('nav-home');
 const navTools = document.getElementById('nav-tools');
 const homeSection = document.getElementById('home-section');
 const toolsSection = document.getElementById('tools-section');
+const objectiveSection = document.getElementById('objective-section');
 
 function showHome() {
   homeSection.classList.add('active');
   toolsSection.classList.remove('active');
+  objectiveSection.classList.add('active');
   navHome.classList.add('active');
   navTools.classList.remove('active');
   localStorage.removeItem('started');
@@ -264,6 +289,7 @@ function showHome() {
 function showTools() {
   homeSection.classList.remove('active');
   toolsSection.classList.add('active');
+  objectiveSection.classList.remove('active');
   navHome.classList.remove('active');
   navTools.classList.add('active');
   localStorage.setItem('started', 'true');
