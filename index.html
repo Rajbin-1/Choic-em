@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Choic’em — Your Daily Decision Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* your CSS here - keep it the same as before */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -46,13 +45,13 @@ nav button.active,
 nav button:hover {
   background: #7b1fa2;
 }
-header, main, section {
+header, main {
   padding: 40px 20px;
   flex-grow: 1;
   display: none;
   animation: fadeIn 0.5s ease;
 }
-header.active, main.active, section.active {
+header.active, main.active {
   display: block;
 }
 h1 {
@@ -116,7 +115,7 @@ h2 {
   position: relative;
   width: 100%;
   max-width: 800px;
-  height: 800px;
+  height: 600px;
   margin: 0 auto;
 }
 .center-circle {
@@ -131,32 +130,29 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  color: #4a148c;
   transform: translate(-50%, -50%);
-  user-select: none;
+  font-weight: bold;
+  color: #4a148c;
   text-align: center;
-  padding: 10px;
 }
 .tool {
   position: absolute;
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   background: #7b1fa2;
-  color: white;
+  color: #fff;
+  font-weight: 600;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   cursor: pointer;
-  padding: 10px;
-  font-weight: 600;
   transition: transform 0.3s ease, background 0.3s ease;
 }
 .tool:hover {
-  background: #9c27b0;
   transform: scale(1.1);
+  background: #9c27b0;
 }
 .footer {
   text-align: center;
@@ -196,22 +192,6 @@ h2 {
   height: 100%;
   border: none;
 }
-@keyframes fadeIn {
-  from {opacity: 0;}
-  to {opacity: 1;}
-}
-@media (max-width: 600px) {
-  .tool {
-    width: 90px;
-    height: 90px;
-    font-size: 0.8rem;
-  }
-  .center-circle {
-    width: 140px;
-    height: 140px;
-    font-size: 0.9rem;
-  }
-}
 </style>
 </head>
 <body>
@@ -234,33 +214,33 @@ h2 {
     <div class="card">🌟 All-in-One <br> Gift ideas, weather planning, fun icebreakers, and more.</div>
   </div>
   <button class="get-started" onclick="showTools()">Get Started</button>
+
+  <section class="objective-section">
+    <h2>Our Objective</h2>
+    <div class="objective-content">
+      <p>
+        Every day, people waste hours stuck in decision paralysis over simple questions like:
+        “What should I eat?” or “Which movie to watch?” This drains our energy and time.
+      </p>
+      <p>
+        Our mission is to eliminate this cognitive load by providing fast, personalized, and helpful suggestions through Choic’em. Less stress. Better decisions. More time.
+      </p>
+      <div class="video-placeholder">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Placeholder Video"></iframe>
+      </div>
+    </div>
+  </section>
 </header>
 
-<section id="objective-section" class="objective-section active">
-  <h2>Our Objective</h2>
-  <div class="objective-content">
-    <p>
-      Every day, people waste hours stuck in decision paralysis over simple questions like:
-      “What should I eat?” or “Which movie to watch?” This drains our energy and time.
-    </p>
-    <p>
-      Our mission is to eliminate this cognitive load by providing fast, personalized, and helpful suggestions through Choic’em. Less stress. Better decisions. More time.
-    </p>
-    <div class="video-placeholder">
-      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Placeholder Video"></iframe>
-    </div>
-  </div>
-</section>
-
-<main id="tools-section" class="active">
+<main id="tools-section">
   <h2 style="text-align:center; margin-bottom: 30px; color:#4a148c;">Choose a Tool</h2>
   <section class="circle-section">
     <div class="center-circle">Why Not Do It?</div>
     <div class="tool" style="top:0; left:50%; transform:translate(-50%, 0);">🎁<br>Giftify</div>
-    <div class="tool" style="top:20%; left:5%;">🍔<br>What to Eat</div>
-    <div class="tool" style="top:20%; right:5%;">📺<br>What to Watch</div>
-    <div class="tool" style="bottom:20%; left:5%;">🎲<br>Boredom Buster</div>
-    <div class="tool" style="bottom:20%; right:5%;">🌤️<br>Weather</div>
+    <div class="tool" style="top:10%; left:10%;">🍔<br>What to Eat</div>
+    <div class="tool" style="top:10%; right:10%;">📺<br>What to Watch</div>
+    <div class="tool" style="bottom:10%; left:10%;">🎲<br>Boredom Buster</div>
+    <div class="tool" style="bottom:10%; right:10%;">🌤️<br>Weather</div>
     <div class="tool" style="top:50%; left:0; transform:translateY(-50%);">🎧📚<br>Entertainment</div>
     <div class="tool" style="top:50%; right:0; transform:translateY(-50%);">💬<br>Icebreaker</div>
   </section>
@@ -275,12 +255,10 @@ const navHome = document.getElementById('nav-home');
 const navTools = document.getElementById('nav-tools');
 const homeSection = document.getElementById('home-section');
 const toolsSection = document.getElementById('tools-section');
-const objectiveSection = document.getElementById('objective-section');
 
 function showHome() {
   homeSection.classList.add('active');
   toolsSection.classList.remove('active');
-  objectiveSection.classList.add('active');
   navHome.classList.add('active');
   navTools.classList.remove('active');
   localStorage.removeItem('started');
@@ -289,7 +267,6 @@ function showHome() {
 function showTools() {
   homeSection.classList.remove('active');
   toolsSection.classList.add('active');
-  objectiveSection.classList.remove('active');
   navHome.classList.remove('active');
   navTools.classList.add('active');
   localStorage.setItem('started', 'true');
