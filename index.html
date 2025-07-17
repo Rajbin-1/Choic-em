@@ -6,7 +6,201 @@
 <title>Choic’em — Your Daily Decision Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* (your CSS as-is, unchanged) */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(to bottom right, #f7f7fb, #e0e7ff);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+nav {
+  background: #4a148c;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 12px;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+nav button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+nav button.active,
+nav button:hover {
+  background: #7b1fa2;
+}
+header, main {
+  padding: 40px 20px;
+  flex-grow: 1;
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+header.active, main.active {
+  display: block;
+}
+h1 {
+  text-align: center;
+  font-size: 3rem;
+  color: #4a148c;
+  margin-bottom: 10px;
+}
+h2 {
+  text-align: center;
+  font-size: 1.4rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+.description {
+  max-width: 800px;
+  margin: 0 auto 30px;
+  text-align: justify;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  color: #444;
+}
+.info-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 30px auto;
+  max-width: 1000px;
+}
+.card {
+  flex: 1 1 250px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  line-height: 1.6;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+.get-started {
+  display: block;
+  margin: 40px auto;
+  padding: 12px 25px;
+  background: #4a148c;
+  color: #fff;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.get-started:hover {
+  background: #7b1fa2;
+}
+.circle-section {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 600px;
+  margin: 0 auto;
+}
+.center-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 220px;
+  height: 220px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  color: #4a148c;
+  text-align: center;
+}
+.tool {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: #7b1fa2;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.tool:hover {
+  transform: scale(1.1);
+  background: #9c27b0;
+}
+.footer {
+  text-align: center;
+  padding: 15px;
+  background: #eee;
+  font-size: 0.9rem;
+  color: #666;
+  user-select: none;
+}
+.objective-section {
+  background: #fff;
+  padding: 40px 20px;
+  margin-top: 40px;
+}
+.objective-section h2 {
+  color: #4a148c;
+  margin-bottom: 15px;
+}
+.objective-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #444;
+}
+#objective-section {
+  padding: 40px 20px;
+  flex-grow: 1;
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+#objective-section.active {
+  display: block;
+}
+.video-placeholder {
+  margin: 20px auto;
+  width: 100%;
+  max-width: 600px;
+  height: 340px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.video-placeholder iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
 </style>
 </head>
 <body>
