@@ -1,4 +1,5 @@
 // api/openrouter.js
+
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
@@ -8,6 +9,7 @@ export default async function handler(req, res) {
 
   const OPENROUTER_API_KEY = process.env.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;
   if (!OPENROUTER_API_KEY) {
+    console.error('Missing API key in environment variables!');
     return res.status(500).json({ error: 'Missing API key in environment variables' });
   }
 
@@ -24,11 +26,14 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('OpenRouter API error:', data);
       return res.status(response.status).json(data);
     }
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Server error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
