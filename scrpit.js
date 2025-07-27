@@ -8,7 +8,7 @@ const simulateForm = document.getElementById('simulate-form');
 const resultBox = document.getElementById('resultBox');
 const plantTypeInput = document.getElementById('plantType');
 const plantVarietyInput = document.getElementById('plantVariety');
-const plantVarietyContainer = plantVarietyInput ? plantVarietyInput.parentElement : null;
+const plantVarietyContainer = plantVarietyInput.parentElement;
 const diseaseForm = document.getElementById('disease-form');
 const plantImageInput = document.getElementById('plantImage');
 const diseaseResultBox = document.getElementById('diseaseResultBox');
@@ -20,38 +20,25 @@ const chatbotClose = document.getElementById('chatbotClose');
 const chatbotMessages = document.getElementById('chatbotMessages');
 const chatbotInput = document.getElementById('chatbotInput');
 const chatbotSend = document.getElementById('chatbotSend');
-const cityInput = document.getElementById('city');
-const countryInput = document.getElementById('country');
-const temperatureInput = document.getElementById('temperature');
-const humidityInput = document.getElementById('humidity');
-const startSimulationBtn = document.querySelector('.hero-buttons .btn[data-section="simulate"]');
-const detectDiseaseBtn = document.querySelector('.hero-buttons .btn[data-section="disease"]');
 
 // ======================
 // Constants
 // ======================
-const TEXT_API_KEY = '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';
-const IMAGE_API_KEY = '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';
+const TEXT_API_KEY = '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';
+const IMAGE_API_KEY = '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    ';
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const SIMULATION_COOLDOWN = 10000; // 10 seconds
 const DISEASE_COOLDOWN = 15000; // 15 seconds
 const CHATBOT_COOLDOWN = 2000; // 2 seconds
-const WEATHER_COOLDOWN = 5000; // 5 seconds
 let lastSimulationTime = 0;
 let lastDiseaseAnalysisTime = 0;
 let lastChatbotTime = 0;
-let lastWeatherTime = 0;
 
 // ======================
 // Core Functions
 // ======================
 
 function setActiveSection(sectionId) {
-    if (!sectionId) {
-        console.error('No sectionId provided');
-        return;
-    }
-
     navLinks.forEach(link => {
         link.classList.remove('active');
         if (link.dataset.section === sectionId) {
@@ -63,132 +50,46 @@ function setActiveSection(sectionId) {
         section.classList.remove('active');
         if (section.id === `${sectionId}-section`) {
             section.classList.add('active');
-        } else {
-            section.classList.remove('active');
         }
     });
 
-    console.log(`Section activated: ${sectionId}`);
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function toggleTheme() {
-    if (!themeToggle) {
-        console.error('Theme toggle element not found');
-        return;
-    }
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
     const icon = themeToggle.querySelector('i');
-    if (icon) {
-        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-    }
+    icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
 }
 
-function formatSimulationResult(rawText, timelineData) {
-    // Parse timeline data for chart
-    const stages = timelineData.stages || ['Seedling', 'Vegetative', 'Flowering', 'Mature'];
-    const durations = timelineData.durations || [2, 4, 3, 2];
-    const milestones = timelineData.milestones || stages.map(s => `Reach ${s} stage`);
-
-    // Format text results
-    const formattedText = rawText
-        .replace(/## (.*?)\n/g, '<h4 class="result-section"><i class="fas fa-$1-icon"></i>$1</h4>')
-        .replace(/Overview-icon/g, 'seedling')
-        .replace(/Growth Timeline-icon/g, 'chart-line')
-        .replace(/Care Recommendations-icon/g, 'hand-holding-water')
-        .replace(/Potential Issues-icon/g, 'exclamation-triangle')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>')
-        .replace(/\n/g, '<br>')
-        .replace(/! (.*?)(\n|$)/g, '<div class="warning"><i class="fas fa-exclamation-triangle"></i> $1 <span class="warning-tag">Action Needed</span></div>');
-
-    // Generate chart
-    const chartHtml = `
-        <div class="growth-chart-container">
-            <canvas id="growthTimelineChart"></canvas>
+function formatSimulationResult(rawText) {
+    const summary = rawText.split('\n\n')[0] || rawText.substring(0, 150) + '...';
+    const details = rawText;
+    
+    return `
+        <div class="result-summary">
+            <h4>Quick Summary</h4>
+            <p>${summary.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</p>
+            <button class="btn btn-read-more">Read More <i class="fas fa-chevron-down"></i></button>
+        </div>
+        <div class="result-details" style="display:none;">
+            ${rawText
+                .replace(/## (.*?)\n/g, '<h4>$1</h4>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>')
+                .replace(/\n/g, '<br>')
+                .replace(/! (.*?)(\n|$)/g, '<div class="warning"><i class="fas fa-exclamation-triangle"></i> $1</div>')}
+            <button class="btn btn-read-less">Show Less <i class="fas fa-chevron-up"></i></button>
         </div>
     `;
-    const chartConfig = {
-        type: "bar",
-        data: {
-            labels: stages,
-            datasets: [{
-                label: "Duration (Weeks)",
-                data: durations,
-                backgroundColor: ["#4CAF50", "#66BB6A", "#81C784", "#A5D6A7"],
-                borderColor: ["#2E7D32", "#388E3C", "#4CAF50", "#66BB6A"],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: "y",
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Duration (Weeks)",
-                        color: document.body.classList.contains('dark-mode') ? '#E8F5E9' : '#1B5E20'
-                    },
-                    grid: {
-                        color: document.body.classList.contains('dark-mode') ? 'rgba(232, 245, 233, 0.1)' : 'rgba(27, 94, 32, 0.1)'
-                    },
-                    ticks: {
-                        color: document.body.classList.contains('dark-mode') ? '#E8F5E9' : '#1B5E20'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: "Growth Stages",
-                        color: document.body.classList.contains('dark-mode') ? '#E8F5E9' : '#1B5E20'
-                    },
-                    grid: {
-                        color: document.body.classList.contains('dark-mode') ? 'rgba(232, 245, 233, 0.1)' : 'rgba(27, 94, 32, 0.1)'
-                    },
-                    ticks: {
-                        color: document.body.classList.contains('dark-mode') ? '#E8F5E9' : '#1B5E20'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Milestone: ${milestones[context.dataIndex]}`;
-                        }
-                    },
-                    backgroundColor: document.body.classList.contains('dark-mode') ? '#1E2B1E' : '#FFFFFF',
-                    titleColor: document.body.classList.contains('dark-mode') ? '#E8F5E9' : '#1B5E20',
-                    bodyColor: document.body.classList.contains('dark-mode') ? '#E8F5E9' : '#1B5E20'
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    };
-
-    // Render chart after DOM update
-    setTimeout(() => {
-        const canvas = document.getElementById('growthTimelineChart');
-        if (canvas) {
-            new Chart(canvas, chartConfig);
-        } else {
-            console.error('Growth timeline chart canvas not found');
-        }
-    }, 0);
-
-    return chartHtml + formattedText;
 }
 
 function formatDiseaseResult(rawText) {
+    // Clean up the response and format it for display
     let formattedText = rawText
         .replace(/\*\*Plant Identification\*\*: (.*?)(\n|$)/g, '<h4>Plant Identified: $1</h4>')
         .replace(/\*\*Diagnosis\*\*: (.*?) \(Confidence: (.*?)\)/g, '<h4>Diagnosis: $1 <span class="disease-confidence">$2 Confidence</span></h4>')
@@ -200,13 +101,13 @@ function formatDiseaseResult(rawText) {
         .replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>')
         .replace(/\n/g, '<br>');
 
+    // Ensure all lists are properly closed
     formattedText += '</ul>';
+
     return `
         <div class="disease-result">
             ${formattedText}
-            <div class="result-actions">
-                <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
-            </div>
+            <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
         </div>
     `;
 }
@@ -230,9 +131,6 @@ function validateInputs(formData) {
     if (!formData.plantType.trim()) {
         return 'Plant type is required';
     }
-    if (!formData.city.trim() || !formData.country.trim()) {
-        return 'City and country are required';
-    }
     return null;
 }
 
@@ -242,72 +140,6 @@ function debounce(func, timeout = 500) {
         clearTimeout(timer);
         timer = setTimeout(() => { func.apply(this, args); }, timeout);
     };
-}
-
-// ======================
-// Weather Lookup Function
-// ======================
-
-async function fetchWeatherData(city, country) {
-    const now = Date.now();
-    if (now - lastWeatherTime < WEATHER_COOLDOWN) {
-        return { error: `Please wait ${Math.ceil((WEATHER_COOLDOWN - (now - lastWeatherTime)) / 1000)} seconds before another weather lookup` };
-    }
-    lastWeatherTime = now;
-
-    try {
-        const response = await fetch(OPENROUTER_API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${TEXT_API_KEY}`,
-                'Content-Type': 'application/json',
-                'HTTP-Referer': window.location.href,
-                'X-Title': 'TAPE - Weather Lookup'
-            },
-            body: JSON.stringify({
-                model: "anthropic/claude-3-sonnet",
-                messages: [
-                    {
-                        role: "system",
-                        content: `You are a weather data provider for the Technology Assisted Plant Emulator (TAPE). Provide current temperature range (min-max in °C) and humidity (%) for the specified location. Return JSON in the format: {"temperature": "min-max", "humidity": "number%"}. If data is unavailable, return {"temperature": "15-25", "humidity": "60%"}.`
-                    },
-                    {
-                        role: "user",
-                        content: `Get weather data for ${city}, ${country}`
-                    }
-                ],
-                temperature: 0.3,
-                max_tokens: 100
-            }),
-            signal: AbortSignal.timeout(5000)
-        });
-
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const content = data.choices?.[0]?.message?.content;
-
-        if (!content) {
-            return { temperature: "15-25", humidity: "60%" };
-        }
-
-        try {
-            const cleanedContent = content.replace(/```json|```/g, '').trim();
-            const weatherData = JSON.parse(cleanedContent);
-            return {
-                temperature: weatherData.temperature || "15-25",
-                humidity: weatherData.humidity || "60%"
-            };
-        } catch (e) {
-            console.error('Failed to parse weather data:', e);
-            return { temperature: "15-25", humidity: "60%" };
-        }
-    } catch (error) {
-        console.error('Weather fetch error:', error);
-        return { temperature: "15-25", humidity: "60%" };
-    }
 }
 
 // ======================
@@ -326,20 +158,24 @@ async function fetchPlantVarieties(plantName) {
                 'Authorization': `Bearer ${TEXT_API_KEY}`,
                 'Content-Type': 'application/json',
                 'HTTP-Referer': window.location.href,
-                'X-Title': 'TAPE - Plant Varieties'
+                'X-Title': 'TAPE - Technology Assisted Plant Emulator'
             },
             body: JSON.stringify({
                 model: "anthropic/claude-3-sonnet",
                 messages: [
                     {
                         role: "system",
-                        content: `Return a JSON array of 3-5 common varieties for the plant "${plantName}". Example: ["Variety A", "Variety B"]. If no varieties are known, return ["Standard"].`
+                        content: `You are a botanical database API. Return ONLY a JSON array of 3-5 common varieties for the requested plant. Example: ["Variety A", "Variety B"]. If the plant has no common varieties or is unknown, return ["Standard"]. Always return valid JSON.`
+                    },
+                    {
+                        role: "user",
+                        content: `List varieties for: ${plantName}`
                     }
                 ],
                 temperature: 0.3,
                 max_tokens: 100
             }),
-            signal: AbortSignal.timeout(5000)
+            signal: AbortSignal.timeout(5000) // 5-second timeout
         });
 
         if (!response.ok) {
@@ -348,10 +184,14 @@ async function fetchPlantVarieties(plantName) {
 
         const data = await response.json();
         const content = data.choices?.[0]?.message?.content;
-        if (!content) return ["Standard"];
+        
+        if (!content) {
+            return ["Standard"];
+        }
 
         try {
-            const varieties = JSON.parse(content.replace(/```json|```/g, '').trim());
+            const cleanedContent = content.replace(/```json|```/g, '').trim();
+            const varieties = JSON.parse(cleanedContent);
             return Array.isArray(varieties) && varieties.length > 0 ? varieties.slice(0, 5) : ["Standard"];
         } catch (e) {
             console.error('Failed to parse varieties:', e);
@@ -364,11 +204,6 @@ async function fetchPlantVarieties(plantName) {
 }
 
 function createVarietyDropdown(varieties) {
-    if (!plantVarietyContainer) {
-        console.error('Plant variety container not found');
-        return;
-    }
-
     const existingDropdown = plantVarietyContainer.querySelector('select');
     if (existingDropdown) existingDropdown.remove();
 
@@ -400,10 +235,6 @@ function createVarietyDropdown(varieties) {
 
 async function analyzePlantDisease(imageFile, plantType, symptoms) {
     return new Promise((resolve, reject) => {
-        if (!imageFile) {
-            reject(new Error('No image file provided'));
-            return;
-        }
         const reader = new FileReader();
         reader.onload = async (event) => {
             try {
@@ -435,7 +266,7 @@ async function analyzeWithQwenVL(imageBase64, plantType, symptoms) {
                     {
                         role: "system",
                         content: `You are a plant pathologist AI. Analyze the provided plant image and:
-1. Identify the plant species if not provided
+1. First identify the plant species if not provided
 2. Detect any visible diseases or health issues
 3. Provide a clear diagnosis with confidence level (High/Medium/Low)
 4. List specific symptoms observed in the image
@@ -488,6 +319,7 @@ Format your response as follows:
         }
 
         const data = await response.json();
+        
         if (!data?.choices?.[0]?.message?.content) {
             throw new Error("Received incomplete data from the API");
         }
@@ -503,47 +335,37 @@ Format your response as follows:
 // ======================
 
 async function runPlantSimulation(formData) {
-    if (!resultBox) {
-        console.error('Result box element not found');
-        return;
-    }
-
     resultBox.innerHTML = `
         <div class="simulation-loading">
             <i class="fas fa-seedling pulse"></i>
             <p>Simulating ${formData.plantType}'s growth patterns...</p>
-            <small>Analyzing ${formData.soilType} soil with ${formData.sunlight} light in ${formData.city}, ${formData.country}</small>
+            <small>Analyzing ${formData.soilType} soil with ${formData.sunlight} light</small>
         </div>
     `;
 
     try {
         const prompt = `
-You are a plant growth simulation AI for the Technology Assisted Plant Emulator (TAPE). Provide a concise, user-friendly prediction of the plant's growth outcomes under the given conditions. Use markdown with headings (##) and bullet points (-). Focus on practical, actionable insights. Structure the response as follows:
+You are a plant growth simulation AI for the Technology Assisted Plant Emulator (TAPE). Provide a detailed, scientifically accurate prediction of the growth outcomes for the specified plant under the given conditions. Format the response in markdown with clear headings (##) and bullet points (-) for each section. Include specific numbers, timelines, and care recommendations. If the conditions are suboptimal, highlight potential issues with a warning (!). Structure the response as follows:
 
-## Overview
-- Summarize the plant, variety, and key conditions (location, temperature, humidity).
-## Growth Timeline
-- List growth stages with durations (in weeks) and key milestones (e.g., height).
-- Include a JSON object at the end of this section: {"stages": ["Stage1", "Stage2"], "durations": [weeks1, weeks2], "milestones": ["Milestone1", "Milestone2"]}.
-## Care Recommendations
-- Provide 3-5 specific care recommendations (e.g., watering adjustments).
-## Potential Issues
-- Highlight potential issues (start with "!") only if conditions are suboptimal.
+1. **Overview**: Summarize the plant and conditions.
+2. **Growth Prediction**: Predict growth rate, expected height, and time to maturity.
+3. **Environmental Analysis**: Assess suitability of temperature, humidity, soil, sunlight, and watering.
+4. **Care Recommendations**: Provide actionable advice to optimize growth.
+5. **Potential Issues**: Highlight any risks or challenges based on the inputs.
 
 **Input Parameters**:
 - Plant Type: ${formData.plantType}
 - Variety: ${formData.plantVariety || 'Standard'}
-- Placement: ${formData.plantPlacement}
+- Placement: ${formData.placement}
 - Soil Type: ${formData.soilType}
 - Watering Schedule: ${formData.watering}
 - Sunlight Exposure: ${formData.sunlight}
 - Temperature Range: ${formData.temperature}°C
 - Humidity: ${formData.humidity}
 - Growth Stage: ${formData.growthStage}
-- Location: ${formData.city}, ${formData.country}
 - Additional Notes: ${formData.notes}
 
-Keep the response concise (150-250 words), avoid technical jargon, and use specific numbers (e.g., 10 cm, 2 weeks).
+Provide a concise yet detailed response (200-400 words) with specific timelines (e.g., weeks/months) and measurements (e.g., cm/inches).
         `;
 
         const response = await fetch(OPENROUTER_API_URL, {
@@ -552,22 +374,21 @@ Keep the response concise (150-250 words), avoid technical jargon, and use speci
                 'Authorization': `Bearer ${TEXT_API_KEY}`,
                 'Content-Type': 'application/json',
                 'HTTP-Referer': window.location.href,
-                'X-Title': 'TAPE - Plant Simulation'
+                'X-Title': 'TAPE - Technology Assisted Plant Emulator'
             },
             body: JSON.stringify({
                 model: "openai/gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system",
-                        content: "You are a plant growth simulation AI. Provide concise, user-friendly predictions in markdown with clear headings and lists. Include a JSON timeline object. Use specific numbers and avoid jargon."
+                        content: "You are a plant growth simulation AI. Provide detailed, scientifically accurate predictions formatted with markdown-style headings and lists. Always include specific numbers and timelines.Give me text with no extra spaces."
                     },
                     {
                         role: "user",
                         content: prompt
                     }
                 ],
-                temperature: 0.7,
-                max_tokens: 300
+                temperature: 0.7
             })
         });
 
@@ -582,48 +403,22 @@ Keep the response concise (150-250 words), avoid technical jargon, and use speci
         }
 
         const simulationResult = data.choices[0].message.content;
-
-        // Extract timeline JSON
-        let timelineData = { stages: ['Seedling', 'Vegetative', 'Flowering', 'Mature'], durations: [2, 4, 3, 2], milestones: ['Germination', 'Leaf development', 'Bud formation', 'Full growth'] };
-        try {
-            const jsonMatch = simulationResult.match(/```json\n([\s\S]*?)\n```/);
-            if (jsonMatch) {
-                timelineData = JSON.parse(jsonMatch[1]);
-            }
-        } catch (e) {
-            console.error('Failed to parse timeline JSON:', e);
-        }
-
-        const formattedResult = formatSimulationResult(simulationResult, timelineData);
-
+        const formattedResult = formatSimulationResult(simulationResult);
+        
         resultBox.innerHTML = `
             <div class="simulation-result">
                 <div class="result-header">
                     <h3><i class="fas fa-chart-line"></i> ${formData.plantType} ${formData.plantVariety || 'Standard'} Growth Simulation</h3>
-                    <small>Generated at ${new Date().toLocaleTimeString()} for ${formData.city}, ${formData.country}</small>
+                    <small>Generated at ${new Date().toLocaleTimeString()}</small>
                 </div>
                 ${formattedResult}
-                <div class="result-actions">
-                    <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
-                    <button class="btn btn-secondary" onclick="copyResults()"><i class="fas fa-copy"></i> Copy Results</button>
-                </div>
+                <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print Report</button>
             </div>
         `;
 
-        // Add copy results functionality
-        window.copyResults = function() {
-            const text = resultBox.querySelector('.simulation-result').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Results copied to clipboard!');
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                alert('Failed to copy results. Please try again.');
-            });
-        };
-
         saveSimulation({
             plant: `${formData.plantType} ${formData.plantVariety || 'Standard'}`,
-            conditions: `${formData.temperature}°C, ${formData.humidity}% humidity, ${formData.city}, ${formData.country}`,
+            conditions: `${formData.temperature}°C, ${formData.humidity}% humidity`,
             summary: simulationResult.substring(0, 150) + '...'
         });
     } catch (error) {
@@ -644,11 +439,6 @@ Keep the response concise (150-250 words), avoid technical jargon, and use speci
 // ======================
 
 async function sendChatbotMessage() {
-    if (!chatbotInput || !chatbotMessages) {
-        console.error('Chatbot input or messages element not found');
-        return;
-    }
-
     const message = chatbotInput.value.trim();
     if (!message) return;
 
@@ -704,7 +494,7 @@ async function sendChatbotMessage() {
                 temperature: 0.5,
                 max_tokens: 300
             }),
-            signal: AbortSignal.timeout(10000)
+            signal: AbortSignal.timeout(10000) // 10-second timeout
         });
 
         if (!response.ok) {
@@ -718,13 +508,14 @@ async function sendChatbotMessage() {
         typingIndicator.remove();
         addMessage(botMessage, 'bot');
 
+        // Save conversation to localStorage
         const conversation = JSON.parse(localStorage.getItem('chatHistory') || '[]');
         conversation.push({
             timestamp: new Date().toISOString(),
             user: message,
             bot: botMessage
         });
-        localStorage.setItem('chatHistory', JSON.stringify(conversation.slice(-10)));
+        localStorage.setItem('chatHistory', JSON.stringify(conversation.slice(-10))); // Keep last 10 messages
     } catch (error) {
         console.error('Chatbot error:', error);
         typingIndicator.remove();
@@ -733,10 +524,6 @@ async function sendChatbotMessage() {
 }
 
 function addMessage(content, sender) {
-    if (!chatbotMessages) {
-        console.error('Chatbot messages element not found');
-        return;
-    }
     const messageDiv = document.createElement('div');
     messageDiv.className = `chatbot-message ${sender}`;
     messageDiv.innerHTML = formatChatMessage(content);
@@ -758,319 +545,196 @@ function formatChatMessage(text) {
 // ======================
 
 // Navigation
-if (navLinks) {
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const sectionId = link.dataset.section;
-            console.log(`Nav link clicked: ${sectionId}`);
-            setActiveSection(sectionId);
-        });
+navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        setActiveSection(link.dataset.section);
     });
-} else {
-    console.error('Navigation links not found');
-}
+});
 
 // Theme toggle
-if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
-} else {
-    console.error('Theme toggle element not found');
-}
-
-// Hero buttons
-if (startSimulationBtn) {
-    startSimulationBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('Start Simulation button clicked');
-        setActiveSection('simulate');
-    });
-} else {
-    console.error('Start Simulation button not found');
-}
-
-if (detectDiseaseBtn) {
-    detectDiseaseBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('Detect Disease button clicked');
-        setActiveSection('disease');
-    });
-} else {
-    console.error('Detect Disease button not found');
-}
+themeToggle.addEventListener('click', toggleTheme);
 
 // Section buttons
 document.querySelectorAll('[data-section]').forEach(btn => {
     btn.addEventListener('click', (e) => {
         if (btn.tagName === 'A') {
             e.preventDefault();
-            const sectionId = btn.dataset.section;
-            console.log(`Section button clicked: ${sectionId}`);
-            setActiveSection(sectionId);
+            setActiveSection(btn.dataset.section);
         }
     });
 });
 
-// Location input with weather lookup
-const updateWeather = debounce(async () => {
-    if (!cityInput || !countryInput) {
-        console.error('City or country input not found');
-        return;
-    }
-
-    const city = cityInput.value.trim();
-    const country = countryInput.value.trim();
-    if (city.length < 2 || country.length < 2) {
+// Plant type input with variety dropdown
+plantTypeInput.addEventListener('input', debounce(async (e) => {
+    const plantName = e.target.value.trim();
+    if (plantName.length < 3) {
+        const dropdown = plantVarietyContainer.querySelector('select');
+        if (dropdown) dropdown.remove();
+        plantVarietyInput.style.display = 'block';
         return;
     }
 
     const loadingSpan = document.createElement('span');
     loadingSpan.className = 'loading-text';
-    loadingSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching weather...';
-    cityInput.parentElement.appendChild(loadingSpan);
+    loadingSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading varieties...';
+    plantVarietyContainer.appendChild(loadingSpan);
 
     try {
-        const weatherData = await fetchWeatherData(city, country);
-        if (weatherData.error) {
-            addMessage(weatherData.error, 'bot');
-        } else {
-            temperatureInput.value = weatherData.temperature;
-            humidityInput.value = weatherData.humidity;
-            temperatureInput.disabled = false;
-            humidityInput.disabled = false;
-            addMessage(`Weather data updated for ${city}, ${country}: **${weatherData.temperature}°C**, **${weatherData.humidity} humidity**. You can modify these values manually if needed.`, 'bot');
-        }
+        const varieties = await fetchPlantVarieties(plantName);
+        createVarietyDropdown(varieties);
     } catch (error) {
-        console.error('Weather lookup failed:', error);
-        addMessage(`Sorry, I couldn't fetch weather data for ${city}, ${country}. Please enter temperature and humidity manually.`, 'bot');
+        console.error('Failed to load varieties:', error);
+        plantVarietyInput.style.display = 'block';
     } finally {
         loadingSpan.remove();
     }
-});
-
-if (cityInput && countryInput) {
-    cityInput.addEventListener('input', updateWeather);
-    countryInput.addEventListener('input', updateWeather);
-} else {
-    console.error('City or country input elements not found');
-}
-
-// Plant type input with variety dropdown
-if (plantTypeInput && plantVarietyContainer) {
-    plantTypeInput.addEventListener('input', debounce(async (e) => {
-        const plantName = e.target.value.trim();
-        if (plantName.length < 3) {
-            const dropdown = plantVarietyContainer.querySelector('select');
-            if (dropdown) dropdown.remove();
-            plantVarietyInput.style.display = 'block';
-            return;
-        }
-
-        const loadingSpan = document.createElement('span');
-        loadingSpan.className = 'loading-text';
-        loadingSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading varieties...';
-        plantVarietyContainer.appendChild(loadingSpan);
-
-        try {
-            const varieties = await fetchPlantVarieties(plantName);
-            createVarietyDropdown(varieties);
-        } catch (error) {
-            console.error('Failed to load varieties:', error);
-            plantVarietyInput.style.display = 'block';
-        } finally {
-            loadingSpan.remove();
-        }
-    }));
-} else {
-    console.error('Plant type input or variety container not found');
-}
+}));
 
 // Simulation form
-if (simulateForm) {
-    simulateForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+simulateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const now = Date.now();
+    if (now - lastSimulationTime < SIMULATION_COOLDOWN) {
+        resultBox.innerHTML = `<div class="simulation-warning">
+            <i class="fas fa-clock"></i>
+            <p>Please wait ${Math.ceil((SIMULATION_COOLDOWN - (now - lastSimulationTime)) / 1000)} seconds before running another simulation</p>
+        </div>`;
+        return;
+    }
+    lastSimulationTime = now;
 
-        const now = Date.now();
-        if (now - lastSimulationTime < SIMULATION_COOLDOWN) {
-            resultBox.innerHTML = `<div class="simulation-warning">
-                <i class="fas fa-clock"></i>
-                <p>Please wait ${Math.ceil((SIMULATION_COOLDOWN - (now - lastSimulationTime)) / 1000)} seconds before running another simulation</p>
-            </div>`;
-            return;
-        }
-        lastSimulationTime = Date.now();
+    const varietyDropdown = document.getElementById('plantVarietyDropdown');
+    const plantVariety = varietyDropdown ? 
+        (varietyDropdown.value === 'Other' ? plantVarietyInput.value : varietyDropdown.value) :
+        plantVarietyInput.value;
 
-        const varietyDropdown = document.getElementById('plantVarietyDropdown');
-        const plantVariety = varietyDropdown ? 
-            (varietyDropdown.value === 'Other' ? plantVarietyInput.value : varietyDropdown.value) :
-            plantVarietyInput.value;
+    if (varietyDropdown && !varietyDropdown.value && !plantVarietyInput.value) {
+        resultBox.innerHTML = `<div class="simulation-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Please select a plant variety or choose "Other"</p>
+        </div>`;
+        return;
+    }
 
-        if (varietyDropdown && !varietyDropdown.value && !plantVarietyInput.value) {
-            resultBox.innerHTML = `<div class="simulation-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Please select a plant variety or choose "Other"</p>
-                </div>`;
-            return;
-        }
+    const formData = {
+        plantType: plantTypeInput.value.trim(),
+        plantVariety: plantVariety.trim(),
+        placement: document.getElementById('placement').value,
+        soilType: document.getElementById('soilType').value,
+        watering: document.getElementById('watering').value.trim(),
+        sunlight: document.getElementById('sunlight').value.trim(),
+        temperature: document.getElementById('temperature').value.trim(),
+        humidity: document.getElementById('humidity').value.trim(),
+        growthStage: document.getElementById('growthStage').value || 'not specified',
+        notes: document.getElementById('notes').value.trim() || 'None'
+    };
 
-        const formData = {
-            plantType: plantTypeInput.value.trim(),
-            plantVariety: plantVariety.trim(),
-            placement: document.getElementById('placement').value,
-            soilType: document.getElementById('soilType').value,
-            watering: document.getElementById('watering').value.trim(),
-            sunlight: document.getElementById('sunlight').value.trim(),
-            temperature: document.getElementById('temperature').value.trim(),
-            humidity: document.getElementById('humidity').value.trim(),
-            growthStage: document.getElementById('growthStage').value || 'not specified',
-            city: cityInput ? cityInput.value.trim() : '',
-            country: countryInput ? countryInput.value.trim() : '',
-            notes: document.getElementById('notes').value.trim() || 'None'
-        };
+    const validationError = validateInputs(formData);
+    if (validationError) {
+        resultBox.innerHTML = `<div class="simulation-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${validationError}</p>
+        </div>`;
+        return;
+    }
 
-        const validationError = validateInputs(formData);
-        if (validationError) {
-            resultBox.innerHTML = `<div class="simulation-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>${validationError}</p>
-                </div>`;
-            return;
-        }
+    const [minTemp, maxTemp] = formData.temperature.split('-').map(Number);
+    if (isNaN(minTemp) || isNaN(maxTemp) || minTemp >= maxTemp) {
+        resultBox.innerHTML = `<div class="simulation-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Temperature must be a valid range (e.g., 18-24)</p>
+        </div>`;
+        return;
+    }
 
-        const [minTemp, maxTemp] = formData.temperature.split('-').map(Number);
-        if (isNaN(minTemp) || isNaN(maxTemp) || minTemp >= maxTemp) {
-            resultBox.innerHTML = `<div class="simulation-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Temperature must be a valid range (e.g., 18-24)</p>
-                </div>`;
-            return;
-        }
-
-        await runPlantSimulation(formData);
-    });
-} else {
-    console.error('Simulation form not found');
-}
+    await runPlantSimulation(formData);
+});
 
 // Disease form
-if (diseaseForm) {
-    diseaseForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+diseaseForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const now = Date.now();
+    if (now - lastDiseaseAnalysisTime < DISEASE_COOLDOWN) {
+        diseaseResultBox.innerHTML = `<div class="simulation-warning">
+            <i class="fas fa-clock"></i>
+            <p>Please wait ${Math.ceil((DISEASE_COOLDOWN - (now - lastDiseaseAnalysisTime)) / 1000)} seconds before another analysis</p>
+        </div>`;
+        return;
+    }
+    lastDiseaseAnalysisTime = now;
 
-        const now = Date.now();
-        if (now - lastDiseaseAnalysisTime < DISEASE_COOLDOWN) {
-            diseaseResultBox.innerHTML = `<div class="simulation-warning">
-                <i class="fas fa-clock"></i>
-                <p>Please wait ${Math.ceil((DISEASE_COOLDOWN - (now - lastDiseaseAnalysisTime)) / 1000)} seconds before another analysis</p>
-                </div>`;
-            return;
-        }
-        lastDiseaseAnalysisTime = now;
+    const imageFile = plantImageInput.files[0];
+    if (!imageFile) {
+        diseaseResultBox.innerHTML = `<div class="simulation-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Please select an image to analyze</p>
+        </div>`;
+        return;
+    }
 
-        const imageFile = plantImageInput.files[0];
-        if (!imageFile) {
-            diseaseResultBox.innerHTML = `<div class="simulation-error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Please select an image to analyze</p>
-                </div>`;
-            return;
-        }
+    diseaseResultBox.innerHTML = `
+        <div class="simulation-loading">
+            <i class="fas fa-microscope pulse"></i>
+            <p>Analyzing plant health...</p>
+            <small>Examining ${imageFile.name} for disease patterns</small>
+        </div>
+    `;
 
+    try {
+        const analysisResult = await analyzePlantDisease(
+            imageFile,
+            plantTypeDiseaseInput.value.trim(),
+            symptomsInput.value.trim()
+        );
+        
+        const formattedResult = formatDiseaseResult(analysisResult);
+        
         diseaseResultBox.innerHTML = `
-            <div class="simulation-loading">
-                <i class="fas fa-microscope pulse"></i>
-                <p>Analyzing plant health...</p>
-                <small>Examining ${imageFile.name} for disease patterns</small>
+            <div class="simulation-result">
+                <div class="result-header">
+                    <h3><i class="fas fa-diagnoses"></i> Plant Health Analysis</h3>
+                    <small>Analyzed at ${new Date().toLocaleTimeString()}</small>
                 </div>
-            `;
+                ${formattedResult}
+            </div>
+        `;
 
-        try {
-            const analysisResult = await analyzePlantDisease(
-                imageFile,
-                plantTypeDiseaseInput.value.trim(),
-                symptomsInput.value.trim()
-            );
-
-            const formattedResult = formatDiseaseResult(analysisResult);
-
-            diseaseResultBox.innerHTML = `
-                <div class="simulation-result">
-                    <div class="result-header">
-                        <h3><i class="fas fa-diagnoses"></i> Plant Health Analysis</h3>
-                        <small>Analyzed at ${new Date().toLocaleTimeString()}</small>
-                    </div>
-                    ${formattedResult}
-                </div>
-            `;
-
-            saveSimulation({
-                type: 'disease_analysis',
-                plant: plantTypeDiseaseInput.value.trim() || 'Unknown',
-                summary: analysisResult.substring(0, 150) + '...'
-            });
-        } catch (error) {
-            console.error('Disease analysis error:', error);
-            diseaseResultBox.innerHTML = `
-                <div class="simulation-error">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Analysis Failed</p>
-                    <small>${error.message}</small>
-                    <button class="btn" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Try Again</button>
-                    </div>
-                `;
-        }
-    });
-} else {
-    console.error('Disease form not found');
-}
+        saveSimulation({
+            type: 'disease_analysis',
+            plant: plantTypeDiseaseInput.value.trim() || 'Unknown',
+            summary: analysisResult.substring(0, 150) + '...'
+        });
+    } catch (error) {
+        console.error('Disease analysis error:', error);
+        diseaseResultBox.innerHTML = `
+            <div class="simulation-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Analysis Failed</p>
+                <small>${error.message}</small>
+                <button class="btn" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Try Again</button>
+            </div>
+        `;
+    }
+});
 
 // Chatbot event listeners
-if (chatbotToggle && chatbotContainer) {
-    chatbotToggle.addEventListener('click', () => {
-        console.log('Chatbot toggle clicked');
-        chatbotContainer.classList.toggle('active');
-        if (chatbotContainer.classList.contains('active')) {
-            chatbotInput.focus();
-        }
-    });
-} else {
-    console.error('Chatbot toggle or container not found');
-}
-
-if (chatbotClose && chatbotContainer) {
-    chatbotClose.addEventListener('click', () => {
-        console.log('Chatbot close clicked');
-        chatbotContainer.classList.remove('active');
-    });
-} else {
-    console.error('Chatbot close or container not found');
-}
-
-if (chatbotSend && chatbotInput) {
-    chatbotSend.addEventListener('click', sendChatbotMessage);
-    chatbotInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            console.log('Chatbot send triggered via Enter key');
-            sendChatbotMessage();
-        }
-    });
-} else {
-    console.error('Chatbot send or input elements not found');
-}
-
-// Handle read more/less buttons
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('btn-read-more') || e.target.closest('.btn-read-more')) {
-        const btn = e.target.classList.contains('btn-read-more') ? e.target : e.target.closest('.btn-read-more');
-        btn.parentElement.nextElementSibling.style.display = 'block';
-        btn.parentElement.style.display = 'none';
+chatbotToggle.addEventListener('click', () => {
+    chatbotContainer.classList.toggle('active');
+    if (chatbotContainer.classList.contains('active')) {
+        chatbotInput.focus();
     }
+});
 
-    if (e.target.classList.contains('btn-read-less') || e.target.closest('.btn-read-less')) {
-        const btn = e.target.classList.contains('btn-read-less') ? e.target : e.target.closest('.btn-read-less');
-        btn.parentElement.previousElementSibling.style.display = 'block';
-        btn.parentElement.style.display = 'none';
-    }
+chatbotClose.addEventListener('click', () => {
+    chatbotContainer.classList.remove('active');
+});
+
+chatbotSend.addEventListener('click', sendChatbotMessage);
+chatbotInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendChatbotMessage();
 });
 
 // ======================
@@ -1081,21 +745,32 @@ document.addEventListener('click', function(e) {
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'dark') {
     document.body.classList.add('dark-mode');
-    if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
 } else {
-    if (themeToggle) themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
 }
 
 // Initialize active section
 setActiveSection('home');
 
 // Load chat history
-if (chatbotMessages) {
-    const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-    chatHistory.forEach(msg => {
-        addMessage(msg.user, 'user');
-        addMessage(msg.bot, 'bot');
-    });
-} else {
-    console.error('Chatbot messages element not found during initialization');
-}
+const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+chatHistory.forEach(msg => {
+    addMessage(msg.user, 'user');
+    addMessage(msg.bot, 'bot');
+});
+
+// Handle read more/less buttons
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-read-more') || e.target.closest('.btn-read-more')) {
+        const btn = e.target.classList.contains('btn-read-more') ? e.target : e.target.closest('.btn-read-more');
+        btn.parentElement.nextElementSibling.style.display = 'block';
+        btn.parentElement.style.display = 'none';
+    }
+    
+    if (e.target.classList.contains('btn-read-less') || e.target.closest('.btn-read-less')) {
+        const btn = e.target.classList.contains('btn-read-less') ? e.target : e.target.closest('.btn-read-less');
+        btn.parentElement.previousElementSibling.style.display = 'block';
+        btn.parentElement.style.display = 'none';
+    }
+});
