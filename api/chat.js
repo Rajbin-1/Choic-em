@@ -1,8 +1,8 @@
 export const config = {
-  runtime: 'edge',
+  runtime: 'edge'
 };
 
-export default async function handler(req) {
+export default async function (req) {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
@@ -25,13 +25,13 @@ export default async function handler(req) {
   }
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const openRouterResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": req.headers.get('referer') || "",
-        "X-Title": "TAPE - Vercel Serverless"
+        "X-Title": "TAPE - Vercel Edge Function"
       },
       body: JSON.stringify({
         model: model || "openai/gpt-3.5-turbo",
@@ -40,7 +40,7 @@ export default async function handler(req) {
       })
     });
 
-    const data = await response.json();
+    const data = await openRouterResponse.json();
     return new Response(JSON.stringify(data), {
       headers: {
         'Content-Type': 'application/json',
