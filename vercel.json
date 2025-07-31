@@ -1,11 +1,13 @@
 {
-  "version": 2,
+  "version": 3,
   "builds": [
     {
       "src": "api/chat.js",
-      "use": "@vercel/node",
+      "use": "@vercel/node@3.0.0",
       "config": {
-        "includeFiles": ["api/**"]
+        "runtime": "nodejs22.x",
+        "includeFiles": ["api/**"],
+        "maxDuration": 30
       }
     }
   ],
