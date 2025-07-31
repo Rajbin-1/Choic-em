@@ -1,5 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -30,7 +29,7 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenRouter error: ${response.statusText}`);
+      throw new Error(`OpenRouter error: ${await response.text()}`);
     }
 
     const data = await response.json();
