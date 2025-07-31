@@ -1,12 +1,27 @@
-export default async function handler(req, res) {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 
-  const { messages, model } = req.body;
+  const { messages, model } = await req.json();
   const apiKey = process.env.OPENROUTER_API_KEY;
+  
   if (!apiKey) {
-    return res.status(500).json({ error: 'Missing API key' });
+    return new Response(JSON.stringify({ error: 'Missing API key' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 
   try {
@@ -15,7 +30,7 @@ export default async function handler(req, res) {
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": req.headers.referer || "",
+        "HTTP-Referer": req.headers.get('referer') || "",
         "X-Title": "TAPE - Vercel Serverless"
       },
       body: JSON.stringify({
@@ -26,8 +41,17 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    res.status(200).json(data);
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
