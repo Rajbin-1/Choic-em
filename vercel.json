@@ -3,7 +3,8 @@
     "api/chat.js": {
       "runtime": "edge"
     }
-  },
+  }
+}
   "routes": [
     {
       "src": "/api/chat",
