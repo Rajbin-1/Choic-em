@@ -1,14 +1,10 @@
 {
+  "version": 2,
   "functions": {
     "api/chat.js": {
-      "runtime": "edge"
+      "runtime": "edge",
+      "memory": 1024,
+      "maxDuration": 30
     }
   }
-}
-  "routes": [
-    {
-      "src": "/api/chat",
-      "dest": "/api/chat.js"
-    }
-  ]
 }
