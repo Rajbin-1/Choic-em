@@ -1,38 +1,23 @@
-// Edge-compatible API route
-export const config = {
-  runtime: 'experimental-edge'
-};
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-export default async function handler(req) {
   try {
-    if (req.method !== 'POST') {
-      return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const { messages, model } = await req.json();
+    const { messages, model } = req.body;
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
-      return new Response(
-        JSON.stringify({ error: 'Missing API key' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      return res.status(500).json({ error: 'Missing API key' });
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    const openRouterResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-      signal: controller.signal,
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": req.headers.get('referer') || "",
-        "X-Title": "TAPE - Vercel Edge"
+        "HTTP-Referer": req.headers?.referer || "",
+        "X-Title": "TAPE - Vercel Node.js"
       },
       body: JSON.stringify({
         model: model || "openai/gpt-3.5-turbo",
@@ -41,24 +26,17 @@ export default async function handler(req) {
       })
     });
 
-    clearTimeout(timeoutId);
-
-    if (!openRouterResponse.ok) {
-      throw new Error(`OpenRouter error: ${openRouterResponse.statusText}`);
+    if (!response.ok) {
+      throw new Error(`OpenRouter error: ${response.statusText}`);
     }
 
-    const data = await openRouterResponse.json();
-    return new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    const data = await response.json();
+    res.status(200).json(data);
+    
   } catch (error) {
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Internal server error',
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    res.status(500).json({
+      error: error.message || 'Internal server error',
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
   }
 }
