@@ -1,0 +1,19 @@
+/* ====================== */
+/* Base Styles & Resets */
+/* ====================== */
+:root {
+    --primary: #2e7d32;
+    --primary-dark: #1b5e20;
+    --primary-light: #81c784;
+    --secondary: #ff8f00;
+    --text-light: #f1f8e9;
+    --text-dark: #1b5e20;
+    --bg-light: #f8fbf8;
+    --bg-card: #ffffff;
+    --border-radius: 12px;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* (rest of the CSS omitted for brevity in this definition) */
+
